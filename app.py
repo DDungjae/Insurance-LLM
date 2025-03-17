@@ -10,7 +10,36 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.prompts import ChatPromptTemplate
 from rag import embeddings_model, retriever_from_llm, vectorstore, prompt, format_docs
+from google_drive_downloader import GoogleDriveDownloader as gdd
+import faiss
+import pickle
 
+FILE_ID_CHILD = "1iWPengosCT11IUyyNrZyqTAb-x8k3KDP"
+FILE_NAME_CHILD = "index_child.faiss"
+FILE_ID_1 = "1-AW6F3lnGJjjy-l_lZLHvf3CyozL9VOi"
+FILE_NAME_1 = "index_1.faiss"
+FILE_ID_2 = "1Z37sYjlHJpz3JrEbkbjrCIJQfZi5vB_9"
+FILE_NAME_2 = "index_child.faiss"
+
+def download_faiss_index(file_id, file_name):
+    url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    response = requests.get(url, stream=True)
+
+    if response.status_code == 200:
+        with open(file_name, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        st.success(f"✅ {file_name} 다운로드 완료!")
+    else:
+        st.error("❌ 파일 다운로드 실패!")
+
+# Streamlit 실행 시 Faiss DB 다운로드
+if not os.path.exists(FILE_NAME):
+    download_faiss_index(FILE_ID, FILE_NAME)
+
+# Faiss 인덱스 로드
+index = faiss.read_index(FILE_NAME)
+st.write("Faiss 인덱스가 성공적으로 로드되었습니다!")
 
 st.title("Insurance LLM")
 st.subheader("using RAG")
