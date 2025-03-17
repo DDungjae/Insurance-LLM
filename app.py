@@ -19,7 +19,9 @@ FILE_NAME_CHILD = "index_child.faiss"
 FILE_ID_1 = "1-AW6F3lnGJjjy-l_lZLHvf3CyozL9VOi"
 FILE_NAME_1 = "index_1.faiss"
 FILE_ID_2 = "1Z37sYjlHJpz3JrEbkbjrCIJQfZi5vB_9"
-FILE_NAME_2 = "index_child.faiss"
+FILE_NAME_2 = "index_2.faiss"
+
+file_list = [[FILE_ID_CHILD, FILE_NAME_CHILD], [FILE_ID_1, FILE_NAME_1], [FILE_ID_2, FILE_NAME_2]]
 
 def download_faiss_index(file_id, file_name):
     url = f"https://drive.google.com/uc?export=download&id={file_id}"
@@ -29,17 +31,18 @@ def download_faiss_index(file_id, file_name):
         with open(file_name, "wb") as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
-        st.success(f"✅ {file_name} 다운로드 완료!")
     else:
         st.error("❌ 파일 다운로드 실패!")
 
 # Streamlit 실행 시 Faiss DB 다운로드
-if not os.path.exists(FILE_NAME):
-    download_faiss_index(FILE_ID, FILE_NAME)
+for ids, names in file_list:
+    if not os.path.exists(names):
+        download_faiss_index(ids, names)
 
 # Faiss 인덱스 로드
-index = faiss.read_index(FILE_NAME)
-st.write("Faiss 인덱스가 성공적으로 로드되었습니다!")
+for ids, names in file_list:
+    index = faiss.read_index(FILE_NAME)
+    
 
 st.title("Insurance LLM")
 st.subheader("using RAG")
